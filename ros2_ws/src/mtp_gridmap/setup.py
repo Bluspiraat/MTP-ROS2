@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'mtp_gridmap'
 
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/models', glob('share/models/*')),
     ],
     install_requires=[
         'setuptools',
@@ -27,6 +30,7 @@ setup(
         'console_scripts': [
             'camera_node = mtp_gridmap.camera_node:main',
             'ganav_node = mtp_gridmap.ganav_node:main',
+            'depth_node = mtp_gridmap.depth_node:main',
         ],
     },
 )

@@ -9,7 +9,7 @@ class LaptopCameraNode(Node):
         super().__init__('laptop_camera_node')
         self.bridge = CvBridge()
         self.publisher_ = self.create_publisher(Image, '/laptop_camera/image_raw', 10)
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(2)
 
         self.timer = self.create_timer(0.1, self.timer_callback)  # 10 Hz
 
@@ -18,6 +18,8 @@ class LaptopCameraNode(Node):
         if ret:
             msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
             self.publisher_.publish(msg)
+            cv2.imshow('Laptop Camera', frame)
+            cv2.waitKey(1)
         else:
             self.get_logger().error('Failed to capture image from camera')
 

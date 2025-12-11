@@ -7,6 +7,12 @@ import onnxruntime as ort
 import numpy as np
 import os
 import cv2
+from ament_index_python.packages import get_package_share_directory 
+from time import time
+
+# --- GANavNode possible issues ---
+#  - The FOV of the input camera might not match the FOV of the camera used during model training. The model was trained with a camera FOV of 60 to 70 degrees.
+
 
 class GANavNode(Node):
 
@@ -20,10 +26,13 @@ class GANavNode(Node):
         self.bridge = CvBridge()
 
         # Load ONNX model
-        self.ort_session = ort.InferenceSession('/ros2_ws/src/mtp_gridmap/models/ganav_rugd_6.onnx')
+        pkg_share = get_package_share_directory('mtp_gridmap')
+        model_path = os.path.join(pkg_share, 'models', 'ganav_rugd_6.onnx')
+        self.ort_session = ort.InferenceSession(model_path)
 
     def listener_callback(self, msg):
         # Convert ROS Image message to OpenCV image
+        start_time = time()
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         img = cv_image.astype('float32')[..., ::-1]  # BGR to RGB
         img_resized = cv2.resize(img, (375, 300), interpolation=cv2.INTER_AREA)  # width x height
@@ -50,7 +59,7 @@ class GANavNode(Node):
         mask_msg = Float32MultiArray()
         mask_msg.data = seg_map.flatten().astype('float32').tolist()
         self.publisher_.publish(mask_msg)
-        
+        self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds')
         
 def main(args=None):
     rclpy.init(args=args)
