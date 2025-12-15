@@ -9,9 +9,9 @@ class LaptopCameraNode(Node):
         super().__init__('laptop_camera_node')
         self.bridge = CvBridge()
         self.publisher_ = self.create_publisher(Image, '/laptop_camera/image_raw', 10)
-        self.cap = cv2.VideoCapture(2)
+        self.cap = cv2.VideoCapture(0)
 
-        self.timer = self.create_timer(0.1, self.timer_callback)  # 10 Hz
+        self.timer = self.create_timer(0.2, self.timer_callback)  # 5 Hz
 
     def timer_callback(self):
         ret, frame = self.cap.read()

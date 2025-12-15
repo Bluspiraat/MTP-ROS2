@@ -18,6 +18,9 @@ class GANavNode(Node):
 
     pallette = np.array([[ 108, 64, 20 ], [ 255, 229, 204 ],[ 0, 102, 0 ],[ 0, 255, 0 ],
             [ 0, 153, 153 ],[ 0, 128, 255 ]], dtype=np.uint8)
+    mean = np.array([123.675, 116.28, 103.53], dtype=np.float32)
+    std = np.array([58.395, 57.12, 57.375], dtype=np.float32)
+    
 
     def __init__(self):
         super().__init__('ga_nav_node')
@@ -28,7 +31,13 @@ class GANavNode(Node):
         # Load ONNX model
         pkg_share = get_package_share_directory('mtp_gridmap')
         model_path = os.path.join(pkg_share, 'models', 'ganav_rugd_6.onnx')
-        self.ort_session = ort.InferenceSession(model_path)
+
+        # Optimization settings
+        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        sess_options = ort.SessionOptions()
+        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+
+        self.ort_session = ort.InferenceSession(model_path, providers=providers)
 
     def listener_callback(self, msg):
         # Convert ROS Image message to OpenCV image
@@ -38,14 +47,14 @@ class GANavNode(Node):
         img_resized = cv2.resize(img, (375, 300), interpolation=cv2.INTER_AREA)  # width x height
 
         # Normalize
-        mean = np.array([123.675, 116.28, 103.53], dtype=np.float32)
-        std = np.array([58.395, 57.12, 57.375], dtype=np.float32)
-        img_resized_norm = (img_resized - mean) / std
+        img_resized_norm = (img_resized - self.mean) / self.std
 
         # CHW and batch dimension
-        img_resized_norm = img_resized_norm.transpose(2, 0, 1)[None, :, :, :]  # 1x3x300x375
+        img_resized_norm = np.ascontiguousarray(img_resized_norm.transpose(2, 0, 1)[None, :, :, :])  # 1x3x300x375
         
+        start_inference = time()
         onnx_out = self.ort_session.run(None, {'input': img_resized_norm})[0]
+        end_inference = time()
 
         # Create segmentation map
         seg_map = onnx_out.argmax(axis=1)[0]  # Takes maximum
@@ -59,7 +68,7 @@ class GANavNode(Node):
         mask_msg = Float32MultiArray()
         mask_msg.data = seg_map.flatten().astype('float32').tolist()
         self.publisher_.publish(mask_msg)
-        self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds')
+        self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds with inference in {end_inference - start_inference:.3f} seconds, overhead is {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
         
 def main(args=None):
     rclpy.init(args=args)

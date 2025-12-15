@@ -59,8 +59,10 @@ class DepthNode(Node):
         input_tensor = transforms.ToTensor()(img_resized).unsqueeze(0).to(self.device)
 
         with torch.no_grad():
+            start_inference = time()
             features = self.encoder(input_tensor)
             outputs = self.decoder(features)
+            end_inference = time()
             disp = outputs[("disp", 0)]
 
             disp_resized = torch.nn.functional.interpolate(
@@ -84,7 +86,7 @@ class DepthNode(Node):
             # Show with OpenCV
             cv2.imshow("Depth Heatmap", disp_colored)
             cv2.waitKey(1)
-            self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds')
+            self.get_logger().info(f'Computed Depth mask in {time() - start_time:.3f} seconds, with inference time {end_inference - start_inference:.3f} seconds and overhead {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
         
         
 def main(args=None):

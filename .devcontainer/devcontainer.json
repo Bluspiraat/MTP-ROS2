@@ -1,17 +1,14 @@
 {
-	"name": "osrf/ros:jazzy-desktop-full",
+	"name": "Ubuntu 22:04 + ROS 2 Humble + CUDA Dev Container",
 	// "image": "vsc-mtp-ros2-9d4577fd39f605783550b4a81c20c48b4cad6f3f103eca6ae7969fd12f4f936d",
     "build": {
         "dockerfile": "../Dockerfile",
 		"context": ".."
     },
 	"runArgs": [
-		"--cap-add=SYS_PTRACE", // Allows the container to trace processes using ptrace system call
-		"--security-opt=seccomp=unconfined", // Disables seccomp security profiles for the container
-		"--ipc=host", // Shares the host's IPC namespace with the container
-		"--network=host", // Shares the host's network namespace with the container
-		"--pid=host", // Shares the host's PID namespace with the container
-		"--privileged" // Gives the container full access to the host's devices and allows it to run with root privileges
+		"--device=/dev/video0:/dev/video0", // Maps the host's video device to the container
+		"--gpus", "all", // Grants the container access to all available GPUs on the host machine
+		"--ipc=host" // Shares the host's IPC namespace with the container
 	],
 	"workspaceMount": "source=${localWorkspaceFolder},target=/ros2_ws,type=bind",
 	"workspaceFolder": "/ros2_ws",
@@ -35,22 +32,12 @@
             "settings": {},
             "extensions": [
                 "mhutchie.git-graph",
-                // "eamodio.gitlens",
-                // "donjayamanne.githistory",
-                // "ms-python.vscode-pylance",
-                // "ms-python.python"
-				// "ms-vscode.cpptools",
-				// "ms-vscode.cpptools-extension-pack"
               ]
         }
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {},
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/git-lfs:1": {},
-		"ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/devcontainers/features/nvidia-cuda:2": {},
-		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {}
 	}
   }
