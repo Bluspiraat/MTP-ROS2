@@ -26,8 +26,9 @@ class DepthNode(Node):
 
     def __init__(self):
         super().__init__('depth_node')
-        self.publisher_ = self.create_publisher(Float32MultiArray, '/depth/mask', 10)
-        self.subscription_ = self.create_subscription(Image, '/laptop_camera/image_raw', self.listener_callback, 10)
+        self.publisher_msg_ = self.create_publisher(Image, '/depth/mask', 10)
+        self.publisher_msg_color_ = self.create_publisher(Image, '/depth/mask_color', 10)
+        self.subscription_ = self.create_subscription(Image, '/image_rect', self.listener_callback, 10)
         self.bridge = CvBridge()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.encoder, self.decoder, self.feed_height, self.feed_width = self.load_model()
@@ -77,15 +78,26 @@ class DepthNode(Node):
             vmax = np.percentile(disp, 95)
             disp = np.clip(disp, 0, vmax)
 
-            # Normalize to 0-255
+            # Publish depth map as ROS Image message
+            '''
+            Convert disparity map to ROS Image message with 32FC1 encoding and publish it. Add header from the original message.
+            '''
+            disp_msg = self.bridge.cv2_to_imgmsg(disp.astype(np.float32), encoding="32FC1")
+            disp_msg.header = msg.header
+            self.publisher_msg_.publish(disp_msg)
+
+            # Publish a visualization of the depth map
+            '''
+            First, normalize the disparity map to 0-255 and convert to uint8. Then apply a colormap for better visualization.
+            Finally, convert to ROS Image message and publish. Header is copied from the original message.
+            '''
             disp_normalized = ((disp - disp.min()) / (disp.max() - disp.min()) * 255).astype(np.uint8)
-
-            # Apply OpenCV colormap (COLORMAP_MAGMA is similar to matplotlib 'magma')
             disp_colored = cv2.applyColorMap(disp_normalized, cv2.COLORMAP_MAGMA)
+            disp_msg_color = self.bridge.cv2_to_imgmsg(disp_colored, encoding="bgr8")
+            disp_msg_color.header = msg.header
+            self.publisher_msg_color_.publish(disp_msg_color)
 
-            # Show with OpenCV
-            cv2.imshow("Depth Heatmap", disp_colored)
-            cv2.waitKey(1)
+            # Publish computation time information
             self.get_logger().info(f'Computed Depth mask in {time() - start_time:.3f} seconds, with inference time {end_inference - start_inference:.3f} seconds and overhead {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
         
         
