@@ -25,7 +25,8 @@ class GANavNode(Node):
 
     def __init__(self):
         super().__init__('ga_nav_node')
-        self.publisher_ = self.create_publisher(Float32MultiArray, '/ga_nav/mask', 10)
+        self.publisher_seg_ = self.create_publisher(Image, '/ga_nav/mask', 10)
+        self.publisher_seg_color_ = self.create_publisher(Image, '/ga_nav/mask_color', 10)
         self.subscription_ = self.create_subscription(Image, '/image_rect', self.listener_callback, 10)
         self.bridge = CvBridge()
 
@@ -33,7 +34,7 @@ class GANavNode(Node):
         pkg_share = get_package_share_directory('mtp_gridmap')
         model_path = os.path.join(pkg_share, 'models', 'ganav_rugd_6.onnx')
 
-        # Optimization settings
+        # Optimization settingss, 2:
         providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
         sess_options = ort.SessionOptions()
         sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
@@ -60,18 +61,36 @@ class GANavNode(Node):
 
         # Create segmentation map
         seg_map = onnx_out.argmax(axis=1)[0]  # Takes maximum
+
+        # Publish to output topic
+        '''
+        Convert segmentation map to ROS Image message with mono8 encoding
+        and publish it. The segmentation values are in range [0, 5] corresponding
+        to different classes: 0: background, 1: smooth, 2: rough,
+        3: bumpy, 4: forbidden, 5: obstacle.
+        '''
+        seg_map_int = seg_map.astype(np.uint8)
+        seg_msg = self.bridge.cv2_to_imgmsg(seg_map_int, encoding="mono8")
+        seg_msg.header = msg.header
+        self.publisher_seg_.publish(seg_msg)
+
+        # Color the segmentation map for visualization
+        ''' 
+        Create a colored overlay for visualization, the classes are mapped as follows:
+        0: black (background)
+        1: green (smooth)
+        2: yellow (rough)
+        3: orange (bumpy)
+        4: red (forbidden)
+        5: dark blue (obstacle)
+
+        It maps the integer segmentation map to a BGR color image using a predefined palette.
+        This pallet is defined at the start of the class as `pallette_bgr`.
+        '''
         colored_mask = self.pallette_bgr[seg_map]
-
-        overlay = cv2.addWeighted(img_resized.astype(np.uint8), 1 - 0.5, colored_mask, 0.5, 0)
-        # cv2.imshow("GA-Nav Segmentation Overlay", overlay)
-        cv2.imshow("Segmentation", colored_mask)
-        cv2.imshow("Input Image", img_resized.astype(np.uint8))
-        cv2.waitKey(1)
-
-        # Prepare and publish the mask
-        mask_msg = Float32MultiArray()
-        mask_msg.data = seg_map.flatten().astype('float32').tolist()
-        self.publisher_.publish(mask_msg)
+        color_mask = self.bridge.cv2_to_imgmsg(colored_mask, encoding="bgr8")
+        self.publisher_seg_color_.publish(color_mask)
+        
         self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds with inference in {end_inference - start_inference:.3f} seconds, overhead is {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
         
 def main(args=None):
