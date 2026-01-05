@@ -13,6 +13,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/models', glob('share/models/*')),
+        ('share/' + package_name + '/camera_info', glob('share/camera_info/*')),
     ],
     install_requires=[
         'setuptools',

@@ -39,6 +39,8 @@ RUN apt-get update && \
     # ROS dependencies and build tools
     python3-colcon-common-extensions \
     python3-rosdep \
+    ros-humble-usb-cam \
+    ros-humble-image-pipeline \
     # Clean up APT lists
     && rm -rf /var/lib/apt/lists/*
 

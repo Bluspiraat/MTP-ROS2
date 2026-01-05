@@ -16,8 +16,9 @@ from time import time
 
 class GANavNode(Node):
 
-    pallette = np.array([[ 108, 64, 20 ], [ 255, 229, 204 ],[ 0, 102, 0 ],[ 0, 255, 0 ],
-            [ 0, 153, 153 ],[ 0, 128, 255 ]], dtype=np.uint8)
+    pallette = np.array([[ 0, 0, 0 ], [ 0,128,0 ],[ 255, 255, 0 ],[ 255, 128, 0 ],
+            [ 255, 0, 0 ],[  0, 0, 128]], dtype=np.uint8)
+    pallette_bgr = pallette[:, ::-1]
     mean = np.array([123.675, 116.28, 103.53], dtype=np.float32)
     std = np.array([58.395, 57.12, 57.375], dtype=np.float32)
     
@@ -25,7 +26,7 @@ class GANavNode(Node):
     def __init__(self):
         super().__init__('ga_nav_node')
         self.publisher_ = self.create_publisher(Float32MultiArray, '/ga_nav/mask', 10)
-        self.subscription_ = self.create_subscription(Image, '/laptop_camera/image_raw', self.listener_callback, 10)
+        self.subscription_ = self.create_subscription(Image, '/image_rect', self.listener_callback, 10)
         self.bridge = CvBridge()
 
         # Load ONNX model
@@ -54,14 +55,17 @@ class GANavNode(Node):
         
         start_inference = time()
         onnx_out = self.ort_session.run(None, {'input': img_resized_norm})[0]
+        print(f"Output Shape: {onnx_out.shape}")
         end_inference = time()
 
         # Create segmentation map
         seg_map = onnx_out.argmax(axis=1)[0]  # Takes maximum
-        colored_mask = self.pallette[seg_map]
+        colored_mask = self.pallette_bgr[seg_map]
 
         overlay = cv2.addWeighted(img_resized.astype(np.uint8), 1 - 0.5, colored_mask, 0.5, 0)
-        cv2.imshow("GA-Nav Segmentation Overlay", overlay)
+        # cv2.imshow("GA-Nav Segmentation Overlay", overlay)
+        cv2.imshow("Segmentation", colored_mask)
+        cv2.imshow("Input Image", img_resized.astype(np.uint8))
         cv2.waitKey(1)
 
         # Prepare and publish the mask

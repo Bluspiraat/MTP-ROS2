@@ -6,3 +6,5 @@
 /ros2_ws/src/launch/install
 /ros2_ws/src/launch/log
 /ros2_ws/src/mtp_gridmap/mono_depth/networks/__pycache__
+/rosbags
+/test_images
