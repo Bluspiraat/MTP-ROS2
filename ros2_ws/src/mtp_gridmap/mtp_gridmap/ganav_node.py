@@ -45,6 +45,7 @@ class GANavNode(Node):
         # Convert ROS Image message to OpenCV image
         start_time = time()
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        height, width, _ = cv_image.shape
         img = cv_image.astype('float32')[..., ::-1]  # BGR to RGB
         img_resized = cv2.resize(img, (375, 300), interpolation=cv2.INTER_AREA)  # width x height
 
@@ -61,6 +62,12 @@ class GANavNode(Node):
 
         # Create segmentation map
         seg_map = onnx_out.argmax(axis=1)[0]  # Takes maximum
+
+        seg_map = cv2.resize(
+            seg_map, 
+            (width, height), 
+            interpolation=cv2.INTER_NEAREST
+        )
 
         # Publish to output topic
         '''
