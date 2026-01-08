@@ -14,7 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/models', glob('share/models/*')),
         ('share/' + package_name + '/camera_info', glob('share/camera_info/*')),
-    ],
+],
     install_requires=[
         'setuptools',
         'numpy',
@@ -32,6 +32,7 @@ setup(
             'camera_node = mtp_gridmap.camera_node:main',
             'ganav_node = mtp_gridmap.ganav_node:main',
             'depth_node = mtp_gridmap.depth_node:main',
+            'point_cloud_node = mtp_gridmap.point_cloud_node:main',
         ],
     },
 )
