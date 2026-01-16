@@ -21,7 +21,7 @@ class PointCloudNode(Node):
     t_cr = np.array([0, 0, 1]) # translation vector from camera to robot base
     n_r = np.array([0, 0, 1]) # plane normal vector in robot base frame
     d_r = 0 # distance from origin to plane along normal in robot base frame
-    theta = np.deg2rad(-15) # Angle of camera to the ground - means to the ground as x points to the right of the robot
+    theta = np.deg2rad(-8) # Angle of camera to the ground - means to the ground as x points to the right of the robot
 
     c, s = np.cos(theta), np.sin(theta)
     R_angle = np.array([
@@ -60,13 +60,11 @@ class PointCloudNode(Node):
         class_image = self.bridge.imgmsg_to_cv2(class_msg, desired_encoding='passthrough')
         depth_image = self.bridge.imgmsg_to_cv2(depth_msg, desired_encoding='passthrough')
 
-        self.get_logger().info(f'class image shape: {class_image.shape}, depth image shape: {depth_image.shape}')
-
         start = time()
 
         point_cloud_msg = self._create_point_cloud(
             class_image, depth_image,
-            n_width=100 , n_height=40, 
+            n_width=200 , n_height=200, 
             header=class_msg.header
         )
 
@@ -110,10 +108,6 @@ class PointCloudNode(Node):
             PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
             PointField(name='class_id', offset=12, datatype=PointField.FLOAT32, count=1),
         ]
-        self.get_logger().info(f'Min/Max X values: {np.min(points_robot[0,:]):.4f} / {np.max(points_robot[0,:]):.4f}')
-        self.get_logger().info(f'Min/Max Y values: {np.min(points_robot[1,:]):.4f} / {np.max(points_robot[1,:]):.4f}')
-        self.get_logger().info(f'Min/Max Z values: {np.min(points_robot[2,:]):.4f} / {np.max(points_robot[2,:]):.4f}')
-        self.get_logger().info(f'number of points in point cloud: {points_array.shape[0]}')
         header = header
         header.frame_id = 'robot_base'
 
