@@ -40,6 +40,7 @@ class GANavNode(Node):
         sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 
         self.ort_session = ort.InferenceSession(model_path, providers=providers)
+        self.get_logger().info('GA-Nav Node has been started.')
 
     def listener_callback(self, msg):
         # Convert ROS Image message to OpenCV image
@@ -57,7 +58,6 @@ class GANavNode(Node):
         
         start_inference = time()
         onnx_out = self.ort_session.run(None, {'input': img_resized_norm})[0]
-        print(f"Output Shape: {onnx_out.shape}")
         end_inference = time()
 
         # Create segmentation map

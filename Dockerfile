@@ -41,6 +41,8 @@ RUN apt-get update && \
     python3-rosdep \
     ros-humble-usb-cam \
     ros-humble-image-pipeline \
+    ros-humble-grid-map-msgs \
+    ros-humble-grid-map-rviz-plugin \
     # Clean up APT lists
     && rm -rf /var/lib/apt/lists/*
 

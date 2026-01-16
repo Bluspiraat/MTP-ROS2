@@ -7,6 +7,7 @@
     },
 	"runArgs": [
 		"--device=/dev/video0:/dev/video0", // Maps the host's video device to the container
+		"--device=/dev/dri:/dev/dri", // Maps the host's Direct Rendering Infrastructure devices to the container for GPU acceleration
 		"--gpus", "all", // Grants the container access to all available GPUs on the host machine
 		"--ipc=host" // Shares the host's IPC namespace with the container
 	],

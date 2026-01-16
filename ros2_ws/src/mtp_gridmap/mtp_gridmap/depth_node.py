@@ -30,6 +30,7 @@ class DepthNode(Node):
         self.model = DepthAnythingV2(encoder='vits', features=64, out_channels=[48, 96, 192, 384], max_depth=80)
         self.model.load_state_dict(torch.load(self.model_weights_path, map_location='cpu'))
         self.model = self.model.to(self.device).eval()
+        self.get_logger().info('Depth Node has been started.')
 
     def listener_callback(self, msg):
         start_time = time()

@@ -33,6 +33,7 @@ setup(
             'ganav_node = mtp_gridmap.ganav_node:main',
             'depth_node = mtp_gridmap.depth_node:main',
             'point_cloud_node = mtp_gridmap.point_cloud_node:main',
+            'grid_map_node = mtp_gridmap.grid_map_node:main',
         ],
     },
 )
