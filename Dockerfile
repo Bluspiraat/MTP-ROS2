@@ -43,6 +43,7 @@ RUN apt-get update && \
     ros-humble-image-pipeline \
     ros-humble-grid-map-msgs \
     ros-humble-grid-map-rviz-plugin \
+    ros-humble-imu-filter-madgwick \
     # Clean up APT lists
     && rm -rf /var/lib/apt/lists/*
 
