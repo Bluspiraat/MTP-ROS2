@@ -44,12 +44,13 @@ RUN apt-get update && \
     ros-humble-grid-map-msgs \
     ros-humble-grid-map-rviz-plugin \
     ros-humble-imu-filter-madgwick \
+    ros-humble-nmea-navsat-driver \
     # Clean up APT lists
     && rm -rf /var/lib/apt/lists/*
 
 # Install python libraries
 RUN pip install --no-cache-dir \
-    "numpy<2.0" \
+    "numpy<1.24" \
     --extra-index-url https://download.pytorch.org/whl/cu124 \
     torch torchvision torchaudio \
     onnxruntime-gpu \

@@ -1,5 +1,9 @@
 # Commands to run the nodes:
 ros2 run mtp_gridmap "ros_node_name"
+ros2 run imu_filter_madgwick imu_filter_madgwick_node --ros-args -p use_mag:=false -p fixed_frame:="odom" -p publish_tf:=true -r /imu/data_raw:=/imu/data_raw
+ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200 -p frame_id:=imu_link
+ros2 run nmea_navsat_driver nmea_serial_driver --ros-args -p port:=/dev/ttyUSB1 -p frame_id:="gnss_link" -p baud:=4800
+
 
 ## Start and connect to docker container
 'docker run -it --rm --device=/dev/video2:/dev/video0 -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix mtp_gridmap:v0.4.3'  
@@ -8,6 +12,7 @@ ros2 run mtp_gridmap "ros_node_name"
 --device=/dev/video0:/dev/video0" Maps the host's video device to the container.
 "--device=/dev/dri:/dev/dri" Maps the host's Direct Rendering Infrastructure devices to the container for GPU acceleration.
 "--device=/dev/ttyUSB0:/dev/ttyUSB0" Maps the host's USB serial IMU device to the container, this device is the ESP and connected to a micro ROS agent.
+"--device=/dev/ttyUSB1:/dev/ttyUSB1" Maps the host's USB serial GNSS device to the container, this device is the BU-353N GNSS receiver.
 "--gpus", "all" Grants the container access to all available GPUs on the host machine.
 "--ipc=host" Shares the host's IPC namespace with the container.
 "--net=host" Shares the host's network namespace with the container.

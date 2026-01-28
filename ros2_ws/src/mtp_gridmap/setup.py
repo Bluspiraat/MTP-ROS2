@@ -14,6 +14,12 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/models', glob('share/models/*')),
         ('share/' + package_name + '/camera_info', glob('share/camera_info/*')),
+        # Include all launch files
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+        # Include all config (YAML) files
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        # Include URDF files
+        (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf'))
 ],
     install_requires=[
         'setuptools',
@@ -34,6 +40,8 @@ setup(
             'depth_node = mtp_gridmap.depth_node:main',
             'point_cloud_node = mtp_gridmap.point_cloud_node:main',
             'grid_map_node = mtp_gridmap.grid_map_node:main',
+            'gnss_bridge.py = mtp_gridmap.gnss_bridge:main',
+            'heading_node = mtp_gridmap.heading_node:main',
         ],
     },
 )

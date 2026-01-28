@@ -1,0 +1,6 @@
+madgwick_filter:
+  ros__parameters:
+    use_mag: false
+    fixed_frame: imu_link
+    publish_tf: false
+    angular_velocity_stddev: 0.1

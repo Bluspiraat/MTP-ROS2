@@ -1,0 +1,38 @@
+ekf_global_node:
+  ros__parameters:
+    frequency: 10.0
+    sensor_timeout: 1.1 # Slightly more than your 1Hz GPS period
+    two_d_mode: true
+    publish_tf: true
+
+    odom_frame: odom           # The local frame
+    base_link_frame: base_link  # Your robot's center
+    world_frame: odom           # Local EKF world is odom
+
+    imu0: /imu
+    imu0_config: [false, false, false, # x, y, z position
+                  false, false, false, # roll, pitch, yaw orientation (KEEP FALSE)
+                  false, false, false, # x, y, z velocity
+                  false, false, true,  # roll, pitch, yaw velocity (FUSE YAW VELOCITY)
+                  false, false, false] # x, y, z acceleration
+    imu0_differential: false # Use absolute acceleration
+    imu0_relative: true
+
+    imu1: /heading
+    imu1_config: [false, false, false, # x, y, z position
+                  false, false, true,  # roll, pitch, yaw orientation (FUSE YAW)
+                  false, false, false, # x, y, z velocity
+                  false, false, false, # roll, pitch, yaw velocity
+                  false, false, false] # x, y, z acceleration
+    imu1_differential: false # Use absolute orientation
+    imu1_relative: false
+
+    # 3. GNSS odometry - 1 Hz
+    odom0: /odometry/gps
+    odom0_config: [true,  true,  false, # x, y, z position (FUSE THESE)
+                  false, false, false, # roll, pitch, yaw
+                  false, false, false, # x, y, z velocity
+                  false, false, false,
+                  false, false, false]
+    odom0_differential: false # Use absolute position
+    odom0_relative: false

@@ -1,0 +1,10 @@
+navsat_transform_node:
+  ros__parameters:
+    # Frequency of the internal loop
+    frequency: 10.0
+    wait_for_datum: false
+    # datum: [52.246293333333334, 6.8468366666666665, 0.0] # Replace with your echoed values [lat, lon, yaw]
+
+    zero_altitude: true
+    
+    use_odometry_yaw: true
