@@ -18,7 +18,7 @@
   <joint name="base_to_imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0 0.1 0 " rpy="0 0 0"/>
+    <origin xyz="0 0.0 0.9" rpy="0 0 0"/>
   </joint>
 
   <link name="gnss_link">
@@ -28,10 +28,24 @@
     </visual>
   </link>
 
-  <joint name="base_to_gps_joint" type="fixed">
+  <joint name="base_to_gnss_joint" type="fixed">
     <parent link="base_link"/>
     <child link="gnss_link"/>
-    <origin xyz="0 -0.1 0" rpy="0 0 0"/>
+    <origin xyz="-0.13 0.0 0.9" rpy="0 0 0"/>
   </joint>
+
+    <link name="camera_link">
+    <visual>
+      <geometry><cylinder radius="0.05" length="0.02"/></geometry>
+      <material name="white"><color rgba="1 1 1 1"/></material>
+    </visual>
+  </link>
+
+  <joint name="base_to_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.16 0.0 0.9" rpy="0 0 0"/>
+  </joint>
+
 
 </robot>

@@ -21,12 +21,14 @@ class GpsHeadingNode(Node):
             self.prev_fix = current_fix
             return
 
-        # 1. Calculate distance between points (approximate for short distances)
-        d_lat = (current_fix.latitude - self.prev_fix.latitude) * 111320
-        d_lon = (current_fix.longitude - self.prev_fix.longitude) * (111320 * math.cos(math.radians(current_fix.latitude)))
+        # 1. Calculate distance between points (approximate for short distances) (111,320 meters per degree of latitude)
+        d_lat = (current_fix.latitude - self.prev_fix.latitude) * 111320  # Meters per degree latitude measured from the equator
+        d_lon = (current_fix.longitude - self.prev_fix.longitude) * (111320 * math.cos(math.radians(current_fix.latitude)))  # Adjust for longitude convergence --> Longitude lines converge towards poles
         distance = math.sqrt(d_lat**2 + d_lon**2)
 
         if distance > self.distance_threshold:
+            #TODO: This can be simplified by implementing artcan(delta_lat, delta_lon) directly since this defines it in ENU frame, it reduces the steps below.
+            
             # 2. Calculate Bearing (atan2(delta_lon, delta_lat))
             # In standard math, atan2(y, x) where y is East/West and x is North/South
             # This gives 0 = North, clockwise positive.
@@ -65,7 +67,6 @@ def main(args=None):
     node = GpsHeadingNode()
     rclpy.spin(node)
     node.destroy_node()
-    rclpy.init()
 
 if __name__ == '__main__':
     main()

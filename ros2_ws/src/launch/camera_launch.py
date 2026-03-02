@@ -24,6 +24,7 @@ def generate_launch_description():
         parameters=[{
             'camera_info_url': f'file://{camera_yaml}',
             'camera_name': 'navigation_camera',
+            'frame_id': 'camera_link',
         }]
     )
 
@@ -44,8 +45,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        throttle_rate_arg,
+        # throttle_rate_arg,
         camera_node,
-        throttle__image_node,
-        rectification_node,
+        # throttle__image_node,
+        # rectification_node,
     ])

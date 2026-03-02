@@ -42,6 +42,8 @@ setup(
             'grid_map_node = mtp_gridmap.grid_map_node:main',
             'gnss_bridge.py = mtp_gridmap.gnss_bridge:main',
             'heading_node = mtp_gridmap.heading_node:main',
+            'planner_server_node = mtp_gridmap.planner_server_node:main',
+            'planner_client_node = mtp_gridmap.planner_client_node:main',
         ],
     },
 )

@@ -70,6 +70,7 @@ class GridMapNode(Node):
         ]
         # Copying header information
         grid_map_msg.header = msg.header
+        grid_map_msg.header.frame_id = 'camera_link'  # Set frame_id to 'map' for RViz compatibility
 
         # Fill in grid map data based on point cloud processing
         self.grid_map_publisher.publish(grid_map_msg)

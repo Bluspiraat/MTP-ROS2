@@ -21,7 +21,7 @@ class PointCloudNode(Node):
     t_cr = np.array([0, 0, 1]) # translation vector from camera to robot base
     n_r = np.array([0, 0, 1]) # plane normal vector in robot base frame
     d_r = 0 # distance from origin to plane along normal in robot base frame
-    theta = np.deg2rad(-8) # Angle of camera to the ground - means to the ground as x points to the right of the robot
+    theta = np.deg2rad(0) # Angle of camera to the ground
 
     c, s = np.cos(theta), np.sin(theta)
     R_angle = np.array([
@@ -64,7 +64,7 @@ class PointCloudNode(Node):
 
         point_cloud_msg = self._create_point_cloud(
             class_image, depth_image,
-            n_width=200 , n_height=200, 
+            n_width=100 , n_height=100, 
             header=class_msg.header
         )
 

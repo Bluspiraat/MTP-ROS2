@@ -45,6 +45,8 @@ RUN apt-get update && \
     ros-humble-grid-map-rviz-plugin \
     ros-humble-imu-filter-madgwick \
     ros-humble-nmea-navsat-driver \
+    ros-humble-robot-localization \ 
+    ros-humble-topic-tools \
     # Clean up APT lists
     && rm -rf /var/lib/apt/lists/*
 

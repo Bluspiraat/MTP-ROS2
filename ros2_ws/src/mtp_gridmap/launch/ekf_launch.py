@@ -8,7 +8,8 @@ def generate_launch_description():
     
     # 1. Paths to files
     urdf_file = os.path.join(pkg_share, 'urdf', 'robot.urdf')
-    ekf_config_global = os.path.join(pkg_share, 'config', 'ekf_global.yaml')
+    ekf_config = os.path.join(pkg_share, 'config', 'ekf.yaml')
+    print(f"EKF Config Path: {ekf_config}")  # Debug print to verify path
     madgwick_config = os.path.join(pkg_share, 'config', 'madgwick.yaml')
     navsat_config = os.path.join(pkg_share, 'config', 'navsat_transform.yaml')
 
@@ -22,13 +23,6 @@ def generate_launch_description():
             package='robot_state_publisher',
             executable='robot_state_publisher',
             parameters=[{'robot_description': robot_desc}]
-        ),
-
-        # Your Velocity Bridge (Python script)
-        Node(
-            package='mtp_gridmap',
-            executable='gnss_bridge.py',
-            name='gnss_bridge'
         ),
 
         Node(
@@ -64,8 +58,8 @@ def generate_launch_description():
         Node(
             package='robot_localization',
             executable='ekf_node',
-            name='ekf_global_node',
+            name='ekf_node',
             output='screen',
-            parameters=[ekf_config_global]
+            parameters=[ekf_config]
         )
     ])
