@@ -10,3 +10,4 @@
 /ros2_ws/install
 /ros2_ws/log
 /ros2_ws/src/mtp_gridmap/share/models/
+onnx_conversions/depth_anything_v2_conversion/depth_anything_v2_metric_vkitti_vits.pth
