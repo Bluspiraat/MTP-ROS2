@@ -4,11 +4,10 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import numpy as np
 import os
-import torch
+import onnxruntime as ort
 import cv2
 from ament_index_python.packages import get_package_share_directory 
 from time import time
-from depth_anything_v2.dpt import DepthAnythingV2
 
 
 # --- DepthNode possible issues ---
@@ -17,28 +16,46 @@ from depth_anything_v2.dpt import DepthAnythingV2
 
 
 class DepthNode(Node):
-    pkg_share = get_package_share_directory('mtp_gridmap')
-    model_weights_path = os.path.join(pkg_share, "models", "depth_anything_v2_metric_vkitti_vits.pth")
 
     def __init__(self):
         super().__init__('depth_node')
+        pkg_share = get_package_share_directory('mtp_gridmap')
+        model_weights_path = os.path.join(pkg_share, "models", "depth_vits_392x518.onnx")
         self.publisher_msg_ = self.create_publisher(Image, '/depth/mask', 10)
         self.publisher_msg_color_ = self.create_publisher(Image, '/depth/mask_color', 10)
         self.subscription_ = self.create_subscription(Image, '/image_rect', self.listener_callback, 10)
         self.bridge = CvBridge()
-        self.device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
-        self.model = DepthAnythingV2(encoder='vits', features=64, out_channels=[48, 96, 192, 384], max_depth=80)
-        self.model.load_state_dict(torch.load(self.model_weights_path, map_location='cpu'))
-        self.model = self.model.to(self.device).eval()
+
+        self.provider_config = {
+            'device_id': 0,
+            'trt_fp16_enable': True,
+            'trt_engine_cache_enable': True,
+            'trt_engine_cache_path': os.path.join(pkg_share, "models", "trt_cache"),
+        }   
+        os.makedirs(self.provider_config['trt_engine_cache_path'], exist_ok=True)
+
+        self.provider = [('TensorrtExecutionProvider', self.provider_config)] # Either: ['CUDAExecutionProvider'] or [('TensorrtExecutionProvider', self.provider_config)]
+
+        self.onnx_session = ort.InferenceSession(model_weights_path, providers = self.provider)
+
         self.get_logger().info('Depth Node has been started.')
 
     def listener_callback(self, msg):
         start_time = time()
-        img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        img_bgr = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        height, width, _ = img_bgr.shape
+
+        # --- Pre-processing --- #
+        img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img_rgb, (518, 392)) # W, H 
+        img = img.astype(np.float32) / 255.0 # To float and normalize
+        img = (img - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225] # Normalize to imagenet
+        img_input = img.transpose(2, 0, 1)[None] # Transpose to NCHW
+        img_input = img_input.astype(np.float32)
 
         # Infer depth
         start_inference = time()
-        depth = self.model.infer_image(img, input_size=518)
+        depth = self.onnx_session.run(None, {'input': img_input})[0].squeeze()
         end_inference = time()
 
         # Publish depth map as ROS Image message

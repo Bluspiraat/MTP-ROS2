@@ -35,11 +35,19 @@ class GANavNode(Node):
         model_path = os.path.join(pkg_share, 'models', 'ganav_rugd_6.onnx')
 
         # Optimization settingss, 2:
-        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-        sess_options = ort.SessionOptions()
-        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        self.provider_config = {
+            'device_id': 0,
+            'trt_fp16_enable': True,
+            'trt_engine_cache_enable': True,
+            'trt_engine_cache_path': os.path.join(pkg_share, "models", "trt_cache"),
+        }
 
-        self.ort_session = ort.InferenceSession(model_path, providers=providers)
+        os.makedirs(self.provider_config['trt_engine_cache_path'], exist_ok=True)
+
+        #self.providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        self.providers = [('TensorrtExecutionProvider', self.provider_config)]
+
+        self.ort_session = ort.InferenceSession(model_path, providers=self.providers)
         self.get_logger().info('GA-Nav Node has been started.')
 
     def listener_callback(self, msg):
