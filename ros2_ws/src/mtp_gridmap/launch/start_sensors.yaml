@@ -1,0 +1,50 @@
+launch:
+
+# Define variables
+- let:
+    name: "pkg_share"
+    value: "$(find-pkg-share mtp_gridmap)"
+- let:
+    name: "mcu_port"
+    value: "/dev/ttyUSB0"
+- let:
+    name: "gps_port"
+    value: "/dev/ttyUSB1"
+
+- node:
+    pkg: "usb_cam"
+    exec: "usb_cam_node_exe"
+    name: "navigation_camera"
+    param:
+    - name: "camera_info_url"
+      value: "file://$(var pkg_share)/camera_info/navigation_camera.yaml"
+    - name: "camera_name"
+      value: "navigation_camera"
+    - name: "frame_id"
+      value: "camera_link"
+    - name: "video_device"
+      value: "/dev/video0"
+
+- node:
+    pkg: "micro_ros_agent"
+    exec: "micro_ros_agent"
+    name: "micro_ros_agent"
+    args: "serial --dev $(var mcu_port) -b 115200"
+    param:
+    - name: "frame_id"
+      value: "imu_link"
+
+- node:
+    pkg: "nmea_navsat_driver"
+    exec: "nmea_serial_driver"
+    name: "nmea_serial_driver"
+    param:
+    - name: "port"
+      value: "$(var gps_port)"
+    - name: "frame_id"
+      value: "gnss_link"
+    - name: "baud"
+      value: 4800
+    remap:
+    - from: "/heading"
+      to: "/heading_sink"

@@ -16,6 +16,7 @@ setup(
         ('share/' + package_name + '/camera_info', glob('share/camera_info/*')),
         # Include all launch files
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.yaml')),
         # Include all config (YAML) files
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         # Include URDF files

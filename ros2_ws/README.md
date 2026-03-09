@@ -25,3 +25,13 @@ ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=true
 The micro_ros_msgs is required for the micro_ros_agent package. These together read information from the ESP32. Which is then converted by the imu_filter_magdwick_node to add quaternions.
 
 The micro_ros packages are installed using colcon build. Imu_filter_magdwick is installed through from the ROS packaged index.
+
+## Settings to communicate over network:
+
+### Global settings
+sudo ufw disable --> Disable laptop firewall to allow communication
+
+### Settings per window
+export 
+export ROS_DOMAIN=0
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp

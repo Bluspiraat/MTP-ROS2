@@ -74,7 +74,6 @@ class PointCloudNode(Node):
 
 
     def _create_point_cloud(self, class_img, depth_img, n_width, n_height, header) -> PointCloud2:
-        start_time = time()
         height, width = class_img.shape
         cx = self.K[0,2]
         cy = self.K[1,2]

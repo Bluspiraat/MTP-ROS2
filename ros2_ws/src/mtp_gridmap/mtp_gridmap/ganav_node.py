@@ -34,13 +34,13 @@ class GANavNode(Node):
         pkg_share = get_package_share_directory('mtp_gridmap')
         model_path = os.path.join(pkg_share, 'models', 'ganav_rugd_6.onnx')
 
-        # Optimization settingss, 2:
+        # Optimization settings
         providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
         sess_options = ort.SessionOptions()
         sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 
         self.ort_session = ort.InferenceSession(model_path, providers=providers)
-        self.get_logger().info('GA-Nav Node has been started.')
+        self.get_logger().info(f'Ga-Nav Node has been started with execution provider: {self.ort_session.get_providers()}')
 
     def listener_callback(self, msg):
         # Convert ROS Image message to OpenCV image
@@ -97,8 +97,8 @@ class GANavNode(Node):
         colored_mask = self.pallette_bgr[seg_map]
         color_mask = self.bridge.cv2_to_imgmsg(colored_mask, encoding="bgr8")
         self.publisher_seg_color_.publish(color_mask)
-        
-        self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds with inference in {end_inference - start_inference:.3f} seconds, overhead is {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
+
+        self.get_logger().info(f'Computed in {time() - start_time:.3f}s (inf: {end_inference - start_inference:.3f} & pp: {(time() - start_time) - (end_inference - start_inference):.3f}s)')
         
 def main(args=None):
     rclpy.init(args=args)
