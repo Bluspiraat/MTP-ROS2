@@ -1,19 +1,40 @@
 # MTP-ROS2
-Repository used for the ROS2 implementation of my master thesis
+Repository used for the ROS2 implementation of my master thesis. It uses a Docker image which is brought online through a docker-compose.
 
-# Docker image
-The docker image is based on nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04. This docker image is based on Ubuntu Jammy, uses Python 3.10 and has support for Cuda 12.4 and cuDNN 9.1.0.
-The installed ROS version is Humble as this is developed for Ubuntu Jammmy.
+# Usage guide
+The steps below are used to build, start and access the docker container to start algorithms.
+The connection with the Jetson is over USB-C. The Jetson assigns the following default IPs to itself and the connected laptop/pc. Jetson (192.168.55.1) and connected device (192.168.55.100).
 
-# Docker container
-It requires inputs:
-- gpu: Used for GPU acceleration of the segmentation algorithms.
-- video: It requires a video input, /dev/video0 is the input for the camera node.
+## Preparation/Building
+The docker image can be build by moving to the root of the directory and calling: `docker compose build`.
 
-# Packages used:
-Some additional Python packages are used
-- "numpy<2.0": CVBridge for ROS2 is based on numpy <2, this is therefore a hard constraint.
-- torch torchvision torchaudio (--extra-index-url https://download.pytorch.org/whl/cu124): This installs torch for Cuda 12.4 which is supported by the base image. The library is used to run the Mono Depth algorithm.
-- onnxruntime-gpu: Used to run the ONNX export of GA-Nav.
-- opencv-python: Used for displaying and processing images.
-- timm: Used in the GA-Nav segmentation head and is therefore a dependency.
+## Mandatory connections for the algorithm
+The docker container uses USB devices, they should be plugged in with the following order:
+1) MPU6050 which communicates through an ESP-32. This is /dev/ttyUSB0.
+2) BU-353B5, which is the satellite receiver. This is /dev/ttyUSB1.
+3) The camera, this is /dev/video0.
+
+## Getting into the docker container
+The docker container is started with:
+`docker compose up -d`.
+
+Connections to the docker container can be started with:
+`docker exec it mtp_gridmap_container bash`
+
+## Building, sourcing and starting ROS packages
+Once in the container the followings steps are made to run the code.
+1) `cd src`
+2) `colcon build`
+3) `source install/setup.bash`
+
+Then three options are available to start the three different core parts of the system.
+1) `ros2 launch mtp_gridmap start_costmap.yaml`
+2) `ros2 launch mtp_gridmap start_ekf.py`
+3) `ros2 launch mtp_gridmap start_sensors.yaml`
+4) `ros2 launch mtp_gridmap start_robot.yaml`
+
+Each starts their own respective part of the system.
+- 'start_costmap.yaml': Starts the camera feed preprocessing, neuralnetwork, pointcloud creation and gridmap nodes.
+- 'start_ekf.yaml': Starts the extended kalman filter nodes.
+- 'start_sensors.yaml': Starts the NMEA navsat driver, usb camera and the MPU6050 reader.
+- 'start_robot.yaml': Starts all of the three mentioned packages and the planner server.
