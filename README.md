@@ -19,7 +19,7 @@ The docker container is started with:
 `docker compose up -d`.
 
 Connections to the docker container can be started with:
-`docker exec it mtp_gridmap_container bash`
+`docker exec -it mtp_gridmap_container bash`
 
 ## Building, sourcing and starting ROS packages
 Once in the container the followings steps are made to run the code.
