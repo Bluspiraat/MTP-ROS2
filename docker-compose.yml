@@ -1,0 +1,47 @@
+services:
+  mtp_container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mtp_gridmap:production_v1
+    container_name: mtp_gridmap_container
+    restart: "no"
+    stdin_open: true
+    tty: true
+
+    # Runtime variables
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=0
+      # Ensure ROS 2 uses the physical network for your laptop to see it
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp 
+
+    # Network settings
+    network_mode: host
+    ipc: host
+    privileged: true # Grants access to GPIO/Hardware clocks if needed
+
+    # Device Mapping (satellite, camera and IMU)
+    devices:
+      - "/dev/dri:/dev/dri"
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB0:/dev/ttyUSB1"
+      - "/dev/video0:/dev/video0" # Uncomment for camera access
+
+    # Mounting storage
+    volumes:
+      # X11 Forwarding for visualization
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:rw
+      - ./ros2_ws:/ros2_ws
+      - ./rosbags:/rosbags
+
+    # Logging (Prevents filling up your Jetson's SD/eMMC)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
