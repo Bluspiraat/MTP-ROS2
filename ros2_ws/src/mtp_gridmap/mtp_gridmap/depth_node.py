@@ -38,7 +38,7 @@ class DepthNode(Node):
 
         self.onnx_session = ort.InferenceSession(model_weights_path, providers = self.provider)
 
-        self.get_logger().info('Depth Node has been started.')
+        self.get_logger().info(f'Depth Node has been started with execution provider: {self.onnx_session.get_providers()}')
 
     def listener_callback(self, msg):
         start_time = time()
@@ -78,8 +78,8 @@ class DepthNode(Node):
         self.publisher_msg_color_.publish(depth_msg_color)
 
         # Publish computation time information
-        self.get_logger().info(f'Computed Depth mask in {time() - start_time:.3f} seconds, with inference time {end_inference - start_inference:.3f} seconds and overhead {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
-        
+        self.get_logger().info(f'Computed in {time() - start_time:.3f}s (inf: {end_inference - start_inference:.3f} & pp: {(time() - start_time) - (end_inference - start_inference):.3f}s)')
+
         
 def main(args=None):
     rclpy.init(args=args)

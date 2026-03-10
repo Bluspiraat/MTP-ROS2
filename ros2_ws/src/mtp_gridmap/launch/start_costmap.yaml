@@ -1,0 +1,36 @@
+launch:
+- arg:
+    name: "image_rate"
+    default: "30.0"
+    
+#All the different nodes:
+- node: 
+    pkg: "topic_tools"
+    exec: "throttle"
+    name: "throttle_messages"
+    args: "messages /image_raw 4.0 /image_throttled"
+- node:
+    pkg: "image_proc"
+    exec: "rectify_node"
+    name: "rectify_node"
+    remap:
+    - from: "image"
+      to: "/image_throttled"
+    - from: "camera_info"
+      to: "/camera_info"
+- node:
+    pkg: "mtp_gridmap"
+    exec: "ganav_node"
+    name: "ganav_node"
+- node:
+    pkg: "mtp_gridmap"
+    exec: "depth_node"
+    name: "depth_node"
+- node:
+    pkg: "mtp_gridmap"
+    exec: "point_cloud_node"
+    name: "point_cloud_node"
+- node:
+    pkg: "mtp_gridmap"
+    exec: "grid_map_node"
+    name: "grid_map_node"

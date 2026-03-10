@@ -48,7 +48,7 @@ class GANavNode(Node):
         self.providers = [('TensorrtExecutionProvider', self.provider_config)]
 
         self.ort_session = ort.InferenceSession(model_path, providers=self.providers)
-        self.get_logger().info('GA-Nav Node has been started.')
+        self.get_logger().info(f'Ga-Nav Node has been started with execution provider: {self.ort_session.get_providers()}')
 
     def listener_callback(self, msg):
         # Convert ROS Image message to OpenCV image
@@ -106,8 +106,8 @@ class GANavNode(Node):
         color_mask = self.bridge.cv2_to_imgmsg(colored_mask, encoding="bgr8")
         self.publisher_seg_color_.publish(color_mask)
         
-        self.get_logger().info(f'Computed GA-Nav mask in {time() - start_time:.3f} seconds with inference in {end_inference - start_inference:.3f} seconds, overhead is {(time() - start_time) - (end_inference - start_inference):.3f} seconds.')
-        
+        self.get_logger().info(f'Computed in {time() - start_time:.3f}s (inf: {end_inference - start_inference:.3f} & pp: {(time() - start_time) - (end_inference - start_inference):.3f}s)')
+
 def main(args=None):
     rclpy.init(args=args)
     ga_nav_node = GANavNode()

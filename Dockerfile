@@ -10,7 +10,9 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o 
 RUN /ros2_install.sh usb_cam && \
     /ros2_install.sh nmea_navsat_driver && \
     /ros2_install.sh grid_map_msgs && \
-    /ros2_install.sh imu_filter_madgwick
+    /ros2_install.sh imu_filter_madgwick && \
+    /ros2_install.sh topic_tools && \
+    /ros2_install.sh robot_localization
 
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ENV ROS_DOMAIN_ID=0

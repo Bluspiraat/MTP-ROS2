@@ -74,7 +74,7 @@ class GridMapNode(Node):
 
         # Fill in grid map data based on point cloud processing
         self.grid_map_publisher.publish(grid_map_msg)
-        self.get_logger().info(f'Published grid map message in {time() - start_time:.3f} seconds.')
+        self.get_logger().info(f'Gridmap made in {time() - start_time:.4f}s.')
 
     def process_point_cloud(self, point_cloud):
         # Convert point cloud to grid map representation

@@ -237,8 +237,8 @@ class PlannerServer(Node):
             # Calculate distance to goal
             distance, bearing = calculate_heading_and_distance(self.current_latitude, self.current_longitude,
                                                                self.target_latitude, self.target_longitude)
-            self.get_logger().info(f'Current distance to goal: {distance} meters with bearing {bearing} radians.')
-            
+            self.get_logger().info(f'Dist to goal: {distance}m, bearing: {bearing} rad.')
+
             # 2) Check if within threshold
             if distance <= self.threshold:
                 self.get_logger().info('Reached the goal within threshold.')
@@ -265,19 +265,19 @@ class PlannerServer(Node):
 
             if not min_x < goal_pos_x_raw < max_x or not min_y < goal_pos_y_raw < max_y:
                 if goal_pos_x_raw < 0 and goal_pos_y_raw < 0:
-                    self.get_logger().info('Goal is behind the robot on the right side. Tight turn to the right must be performed')
+                    self.get_logger().info('Goal is behind the robot on the right side: Right turn')
                     goal_x, goal_y = 1.25, -1.25
                 # Correct the position from outside to inside bounds
                 elif goal_pos_x_raw < 0 and goal_pos_y_raw > 0:
-                    self.get_logger().info('Goal is behind the robot on the left side. Tight turn to the left must be performed')
+                    self.get_logger().info('Goal is behind the robot on the left side: Left turn.')
                     goal_x, goal_y = 1.25, 1.25
                 else:
                     goal_x, goal_y = bring_goal_in_bounds(map_length_x, map_length_y, angle_to_goal, distance)
                     goal_x, goal_y = goal_x*0.75, goal_y*0.75  # Bring the goal a bit closer to the robot to prevent issues with path planning at the edges of the map
-                    self.get_logger().info(f'Goal is rectified to x: {goal_x} and y: {goal_y}')
+                    self.get_logger().info(f'Goal rectified to x, y: ({goal_x:.2f}, {goal_y:.2f})')
             else:
                 goal_x, goal_y = goal_pos_x_raw, goal_pos_y_raw
-                self.get_logger().info(f'Goal is in bounds at x: {goal_x} and y: {goal_y}')
+                self.get_logger().info(f'Goal is in bounds at x,y: ({goal_x:.2f}, {goal_y:.2f})')
 
             
             self.publish_marker(np.floor(goal_x/map_resolution), 

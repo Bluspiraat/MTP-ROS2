@@ -1,0 +1,12 @@
+launch:
+- include:
+    file: "$(find-pkg-share mtp_gridmap)/launch/start_sensors.yaml"
+- include:
+    file: "$(find-pkg-share mtp_gridmap)/launch/start_costmap.yaml"
+- include:
+    file: "$(find-pkg-share mtp_gridmap)/launch/start_ekf.py"
+
+- node:
+    pkg: "mtp_gridmap"
+    exec: "planner_server_node"
+    name: "planner_node"
